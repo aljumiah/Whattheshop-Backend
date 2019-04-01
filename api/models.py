@@ -1,16 +1,25 @@
 from django.db import models
 
 class Product(models.Model):
-	name= models.CharField(max_length=50)
-	price= models.DecimalField(max_digits=6, decimal_places=2)
+	name = models.CharField(max_length=50)
+	price = models.DecimalField(max_digits=6, decimal_places=2)
 	description = models.TextField()
 
-class ProductImages(models.Model):
+class ProductImage(models.Model):
 	image = models.ImageField()
 	product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL, related_name='images')
 
 class Cart(models.Model):
-	#Edit the model name
-	cart_Item = models.OneToOneField(Product, null=True, on_delete=models.SET_NULL, related_name='items')
-	sub_total= models.DecimalField(max_digits=6, decimal_places=2)
-	quentity= models.IntegerField()
+	sub_total = models.DecimalField(max_digits=6, decimal_places=2)
+	quantity = models.IntegerField()
+
+class CartItem(models.Model):
+	product = models.OneToOneField(Product, null=True, on_delete=models.SET_NULL)
+	quantity = models.IntegerField()
+	sub_total = models.DecimalField(max_digits=6, decimal_places=2)
+  cart = models.ForeignKey(Cart, null=True, on_delete=models.SET_NULL, related_name='cart_items')
+
+class Order(models.Model):
+	cart_item = models.OneToOneField(CartItem, null=True, on_delete=models.SET_NULL)
+	quantity = models.IntegerField()
+	date = models.DateField()
