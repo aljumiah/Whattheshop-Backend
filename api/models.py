@@ -22,7 +22,7 @@ class CartItem(models.Model):
 	cart = models.ForeignKey(Cart, null=True, on_delete=models.SET_NULL, related_name='cart_items')
 
 class Profile(models.Model):
-	user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True,)
+	user = models.OneToOneField(User, on_delete=models.CASCADE)
 	address = models.TextField()
 	created_on = models.DateTimeField(auto_now_add=True)
 	image = models.ImageField()

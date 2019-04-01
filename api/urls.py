@@ -14,6 +14,8 @@ UserCreateAPIView,
  CartListDeleteView,
  CartItemCreateView,
  OrderCreateView,
+ ProfileUpdate,
+ ProfileDetail,
   )
 from rest_framework_jwt.views import obtain_jwt_token
 
@@ -35,4 +37,7 @@ urlpatterns = [
     path('cart/items/<int:product_id>/add',CartItemCreateView.as_view(), name='cart-item-add'),
     path('cart/items/<int:item_id>/update/',CartItemUpdateView.as_view(), name='items-update'),
     path('cart/checkout/',OrderCreateView.as_view(), name='checkout'),
+  
+    path('profile/<int:user_id>/update/', ProfileUpdate.as_view(), name='profile-update'),
+    path('profile/<int:user_id>/detail/', ProfileDetail.as_view(), name='profile-detail'),
 ]
