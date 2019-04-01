@@ -21,13 +21,23 @@ class ProductImageSerializer(serializers.ModelSerializer):
         model = ProductImage
         fields = ['image']
 
-            
 class ProductListSerializer(serializers.ModelSerializer):
     images = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
         fields = ['name', 'images', 'price']
+
+    def get_images(self, obj):
+        images = obj.images.all()
+        return ProductImageSerializer(images, many=True).data
+
+class ProductCreateUpdateSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = ['name', 'images', 'price', 'description']
 
     def get_images(self, obj):
         images = obj.images.all()
