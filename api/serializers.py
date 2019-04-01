@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Product, ProductImages
+from .models import Product, ProductImage
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -18,7 +18,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 
 class ProductImageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ProductImages
+        model = ProductImage
         fields = ['image']
 
             
@@ -28,6 +28,17 @@ class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['name', 'images', 'price']
+
+    def get_images(self, obj):
+        images = obj.images.all()
+        return ProductImageSerializer(images, many=True).data
+
+class ProductDetailSerializer(serializers.ModelSerializer):
+    images = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Product
+        fields = ['name', 'images', 'price', 'description']
 
     def get_images(self, obj):
         images = obj.images.all()
