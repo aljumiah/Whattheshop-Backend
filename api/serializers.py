@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Product, ProductImage
+from .models import Product, ProductImage , Cart , CartItem ,Order
 
 class UserCreateSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
@@ -53,3 +53,45 @@ class ProductDetailSerializer(serializers.ModelSerializer):
     def get_images(self, obj):
         images = obj.images.all()
         return ProductImageSerializer(images, many=True).data
+
+class CartItemListSerializer(serializers.ModelSerializer): 
+    product = ProductDetailSerializer()
+
+    class Meta:
+        model = CartItem
+        fields = [ 'product','sub_total', 'quantity']
+
+
+class CartListSerializer(serializers.ModelSerializer): 
+    cart = serializers.SerializerMethodField()
+    sub_total=serializers.SerializerMethodField()
+    quantity=serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Cart
+        fields = ['cart', 'sub_total', 'quantity']
+
+    def get_cart(self, obj):
+        cart_items = obj.cart_items.all()
+        return CartItemListSerializer(cart_items, many=True).data  
+
+class OrderListSerializer(serializers.ModelSerializer): 
+    cart = CartItemListSerializer()
+    
+    class Meta:
+        model = Order
+        fields = ['cart', 'date', 'quantity']
+
+
+class OrderCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = []
+
+
+class CartItemCreateUpdateSerializer(serializers.ModelSerializer): 
+    class Meta:
+        model = CartItem
+        fields = [ 'quantity']
+
+    
