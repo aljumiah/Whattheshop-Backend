@@ -11,9 +11,7 @@ UserCreateAPIView,
  ProductImageUpdateView,
  CartListView,
  CartItemUpdateView,
- CartListDeleteView,
  CartItemCreateView,
- OrderCreateView,
  ProfileUpdate,
  ProfileDetail,
   )
@@ -33,10 +31,9 @@ urlpatterns = [
 	path('products/<int:product_id>/image/<int:image_id>/delete/', ProductImageDeleteView.as_view(), name='product-image-delete'),
 	
 	path('cart/', CartListView.as_view(), name='items'),
-	path('cart/<int:cart_id>/delete/',CartListDeleteView.as_view(), name='cart-delete'),
-	path('cart/items/<int:product_id>/add',CartItemCreateView.as_view(), name='cart-item-add'),
-	path('cart/items/<int:item_id>/update/',CartItemUpdateView.as_view(), name='items-update'),
-	path('cart/checkout/',OrderCreateView.as_view(), name='checkout'),
+	path('cart/<int:cart_id>/items/<int:product_id>/add/',CartItemCreateView.as_view(), name='cart-item-add'),
+	path('cart/<int:cart_id>/items/<int:item_id>/update/',CartItemUpdateView.as_view(), name='items-update'),
+	# path('cart/checkout/',OrderCreateView.as_view(), name='checkout'),
   
 	path('profile/<int:user_id>/update/', ProfileUpdate.as_view(), name='profile-update'),
 	path('profile/<int:user_id>/detail/', ProfileDetail.as_view(), name='profile-detail'),

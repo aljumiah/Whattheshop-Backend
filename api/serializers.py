@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Product, ProductImage , Cart , CartItem, Order, Profile
+from .models import Product, ProductImage , Cart , CartItem, Profile
 from rest_framework_jwt.settings import api_settings
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -18,6 +18,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
 		new_user.save()
 		profile = Profile(user=new_user)
 		profile.save()
+		cart = Cart(user=new_user)
+		cart.save()
 		jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 		jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 		payload = jwt_payload_handler(new_user)
@@ -36,14 +38,10 @@ class ProductListSerializer(serializers.ModelSerializer):
 		model = Product
 		fields = ['id','name', 'images', 'price']
 
-	# def get_images(self, obj):
-	# 	images = obj.images.all()
-	# 	return ProductImageSerializer(images, many=True).data
-
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['id', 'first_name', 'last_name', 'email']
+		fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
@@ -64,59 +62,45 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
 		model = Product
 		fields = ['name', 'price', 'description']
 
-	# def get_images(self, obj):
-	# 	images = obj.images.all()
-	# 	return ProductImageSerializer(images, many=True).data
-
 class ProductDetailSerializer(serializers.ModelSerializer):
 	images = ProductImageSerializer(many=True)
 
 	class Meta:
 		model = Product
-		fields = ['name', 'images', 'price', 'description']
-
-	# def get_images(self, obj):
-	# 	images = obj.images.all()
-	# 	return ProductImageSerializer(images, many=True).data
+		fields = ['name', 'images', 'price', 'description', 'added_by']
 
 class CartItemListSerializer(serializers.ModelSerializer): 
 	product = ProductDetailSerializer()
-
 	class Meta:
 		model = CartItem
-		fields = [ 'product','sub_total', 'quantity']
-
+		fields = ['cart', 'subtotal', 'product', 'subtotal', 'quantity']
+	
 
 class CartListSerializer(serializers.ModelSerializer): 
 	cart_items = CartItemListSerializer(many=True)
-	sub_total=serializers.SerializerMethodField()
-	quantity=serializers.SerializerMethodField()
-	
+	# total = serializers.SerializerMethodField()
+	user = UserSerializer()
 	class Meta:
 		model = Cart
-		fields = ['cart_items', 'sub_total', 'quantity']
+		fields = ['id', 'cart_items', 'total', 'paid', 'order_date', 'user']
 
-	# def get_cart(self, obj):
-	# 	cart_items = obj.cart_items.all()
-	# 	return CartItemListSerializer(cart_items, many=True).data  
-
-class OrderListSerializer(serializers.ModelSerializer): 
-	cart = CartItemListSerializer()
 	
-	class Meta:
-		model = Order
-		fields = ['cart', 'date', 'quantity']
+# class OrderListSerializer(serializers.ModelSerializer): 
+# 	cart = CartItemListSerializer()
+	
+# 	class Meta:
+# 		model = Order
+# 		fields = ['cart', 'date', 'quantity']
 
 
-class OrderCreateSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = Order
-		fields = []
-
+# class OrderCreateSerializer(serializers.ModelSerializer):
+# 	class Meta:
+# 		model = Order
+# 		fields = []
 
 class CartItemCreateUpdateSerializer(serializers.ModelSerializer): 
 	class Meta:
 		model = CartItem
-		fields = [ 'quantity']
+		fields = ['product' ,'quantity', 'cart']
 
 	
