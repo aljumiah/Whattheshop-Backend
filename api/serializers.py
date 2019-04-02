@@ -30,15 +30,15 @@ class ProductImageSerializer(serializers.ModelSerializer):
 		fields = ['image']
 
 class ProductListSerializer(serializers.ModelSerializer):
-	images = serializers.SerializerMethodField()
+	images = ProductImageSerializer(many=True)
 
 	class Meta:
 		model = Product
-		fields = ['name', 'images', 'price']
+		fields = ['id','name', 'images', 'price']
 
-	def get_images(self, obj):
-		images = obj.images.all()
-		return ProductImageSerializer(images, many=True).data
+	# def get_images(self, obj):
+	# 	images = obj.images.all()
+	# 	return ProductImageSerializer(images, many=True).data
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -59,26 +59,25 @@ class ProfileDetailSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 class ProductCreateUpdateSerializer(serializers.ModelSerializer):
-	images = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Product
-		fields = ['name', 'images', 'price', 'description']
+		fields = ['name', 'price', 'description']
 
-	def get_images(self, obj):
-		images = obj.images.all()
-		return ProductImageSerializer(images, many=True).data
+	# def get_images(self, obj):
+	# 	images = obj.images.all()
+	# 	return ProductImageSerializer(images, many=True).data
 
 class ProductDetailSerializer(serializers.ModelSerializer):
-	images = serializers.SerializerMethodField()
+	images = ProductImageSerializer(many=True)
 
 	class Meta:
 		model = Product
 		fields = ['name', 'images', 'price', 'description']
 
-	def get_images(self, obj):
-		images = obj.images.all()
-		return ProductImageSerializer(images, many=True).data
+	# def get_images(self, obj):
+	# 	images = obj.images.all()
+	# 	return ProductImageSerializer(images, many=True).data
 
 class CartItemListSerializer(serializers.ModelSerializer): 
 	product = ProductDetailSerializer()
@@ -89,17 +88,17 @@ class CartItemListSerializer(serializers.ModelSerializer):
 
 
 class CartListSerializer(serializers.ModelSerializer): 
-	cart = serializers.SerializerMethodField()
+	cart_items = CartItemListSerializer(many=True)
 	sub_total=serializers.SerializerMethodField()
 	quantity=serializers.SerializerMethodField()
 	
 	class Meta:
 		model = Cart
-		fields = ['cart', 'sub_total', 'quantity']
+		fields = ['cart_items', 'sub_total', 'quantity']
 
-	def get_cart(self, obj):
-		cart_items = obj.cart_items.all()
-		return CartItemListSerializer(cart_items, many=True).data  
+	# def get_cart(self, obj):
+	# 	cart_items = obj.cart_items.all()
+	# 	return CartItemListSerializer(cart_items, many=True).data  
 
 class OrderListSerializer(serializers.ModelSerializer): 
 	cart = CartItemListSerializer()
