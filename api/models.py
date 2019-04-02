@@ -7,7 +7,7 @@ class Product(models.Model):
 	description = models.TextField()
 
 class ProductImage(models.Model):
-	image = models.ImageField()
+	image = models.ImageField(null=True)
 	product = models.ForeignKey(Product, null=True, on_delete=models.SET_NULL, related_name='images')
 
 class Cart(models.Model):

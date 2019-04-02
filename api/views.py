@@ -53,8 +53,7 @@ class ProductDetailView(RetrieveAPIView):
 class CartListView(ListAPIView):
 	queryset = Cart.objects.all()
 	serializer_class = CartListSerializer
-	lookup_field = 'id'
-	lookup_url_kwarg = 'item_id'
+
 	permission_classes = [IsAuthenticated, ]
 
 class CartItemUpdateView(RetrieveUpdateAPIView):
