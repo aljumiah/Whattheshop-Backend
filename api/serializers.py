@@ -17,8 +17,9 @@ class UserCreateSerializer(serializers.ModelSerializer):
 		new_user.set_password(password)
 		new_user.save()
 		profile = Profile(user=new_user)
-		Cart.objects.create(user=new_user, )
 		profile.save()
+		cart = Cart(user=new_user)
+		cart.save()
 		jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 		jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 		payload = jwt_payload_handler(new_user)
@@ -40,7 +41,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = User
-		fields = ['id', 'first_name', 'last_name', 'email']
+		fields = ['id', 'username', 'first_name', 'last_name', 'email']
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
@@ -78,9 +79,10 @@ class CartItemListSerializer(serializers.ModelSerializer):
 class CartListSerializer(serializers.ModelSerializer): 
 	cart_items = CartItemListSerializer(many=True)
 	# total = serializers.SerializerMethodField()
+	user = UserSerializer()
 	class Meta:
 		model = Cart
-		fields = ['cart_items', 'total', 'paid', 'order_date']
+		fields = ['id', 'cart_items', 'total', 'paid', 'order_date', 'user']
 
 	
 # class OrderListSerializer(serializers.ModelSerializer): 
@@ -99,6 +101,6 @@ class CartListSerializer(serializers.ModelSerializer):
 class CartItemCreateUpdateSerializer(serializers.ModelSerializer): 
 	class Meta:
 		model = CartItem
-		fields = [ 'quantity']
+		fields = ['product' ,'quantity', 'cart']
 
 	

@@ -50,10 +50,12 @@ class ProductDetailView(RetrieveAPIView):
 
 
 class CartListView(ListAPIView):
-	queryset = Cart.objects.all()
 	serializer_class = CartListSerializer
 
 	permission_classes = [IsAuthenticated, ]
+	def get_queryset(self):
+		queryset = Cart.objects.filter(user=self.request.user)
+		return queryset
 
 class CartItemUpdateView(RetrieveUpdateAPIView):
 	queryset = CartItem.objects.all()
@@ -68,7 +70,9 @@ class CartItemCreateView(CreateAPIView):
 
 	def perform_create(self, serializer):	
 		product = Product.objects.get(id=self.kwargs['product_id'])
-		cart = Cart.objects.get(paid=False)
+		cart = Cart.objects.get(id=self.kwargs['cart_id'])
+		print("cart " + str(cart))
+		print("product " + str(product))
 		serializer.save(product=product, cart=cart)
 
 # class CartListDeleteView(DestroyAPIView):
