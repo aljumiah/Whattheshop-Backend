@@ -71,21 +71,13 @@ class CartItemCreateView(CreateAPIView):
 		cart = Cart.objects.get(paid=False)
 		serializer.save(product=product, cart=cart)
 
-# class CartListDeleteView(DestroyAPIView):
-# 	queryset = Cart.objects.all()
-# 	serializer_class = CartListSerializer
-# 	lookup_field = 'id'
-# 	lookup_url_kwarg = 'cart_id'
-# 	permission_classes = [IsAuthenticated, ]
+class CartItemDeleteView(DestroyAPIView):
+	queryset = CartItem.objects.all()
+	serializer_class = CartItemListSerializer
+	lookup_field = 'id'
+	lookup_url_kwarg = 'item_id'
+	permission_classes = [IsAuthenticated, ]
 
-# class OrderCreateView(CreateAPIView):
-# 	serializer_class=OrderCreateSerializer
-# 	permission_classes = [IsAuthenticated, ]
-
-# 	def perform_create(self, serializer):	
-# 		cart = Cart.objects.get(user=self.request.user)
-# 		profile = Profile.objects.get(user=self.request.user)
-# 		serializer.save(cart=cart, profile=profile)
 
 class ProductUpdateView(RetrieveUpdateAPIView):
 	queryset = Product.objects.all()
