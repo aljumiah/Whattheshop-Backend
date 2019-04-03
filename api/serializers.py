@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Product, ProductImage , Cart , CartItem, Profile
+from .models import Product, ProductImage , Order , CartItem, Profile
 from rest_framework_jwt.settings import api_settings
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -18,8 +18,8 @@ class UserCreateSerializer(serializers.ModelSerializer):
 		new_user.save()
 		profile = Profile(user=new_user)
 		profile.save()
-		cart = Cart(user=new_user)
-		cart.save()
+		order = Order(user=new_user)
+		order.save()
 		jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 		jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 		payload = jwt_payload_handler(new_user)
@@ -73,34 +73,30 @@ class CartItemListSerializer(serializers.ModelSerializer):
 	product = ProductDetailSerializer()
 	class Meta:
 		model = CartItem
-		fields = ['cart', 'subtotal', 'product', 'subtotal', 'quantity']
+		fields = ['order', 'subtotal', 'product', 'subtotal', 'quantity']
 	
 
-class CartListSerializer(serializers.ModelSerializer): 
+class OrderSerializer(serializers.ModelSerializer): 
 	cart_items = CartItemListSerializer(many=True)
-	# total = serializers.SerializerMethodField()
+	checkout = serializers.HyperlinkedIdentityField(
+			view_name = 'checkout',
+			lookup_field = 'id',
+			lookup_url_kwarg = 'order_id',
+		)
 	user = UserSerializer()
 	class Meta:
-		model = Cart
-		fields = ['id', 'cart_items', 'total', 'paid', 'order_date', 'user']
+		model = Order
+		fields = ['id', 'cart_items', 'total', 'paid', 'order_date', 'user','checkout']
 
-	
-# class OrderListSerializer(serializers.ModelSerializer): 
-# 	cart = CartItemListSerializer()
-	
-# 	class Meta:
-# 		model = Order
-# 		fields = ['cart', 'date', 'quantity']
-
-
-# class OrderCreateSerializer(serializers.ModelSerializer):
-# 	class Meta:
-# 		model = Order
-# 		fields = []
+class OrderCreateSerializer(serializers.ModelSerializer): 
+	user = UserSerializer(read_only=True)
+	class Meta:
+		model = Order
+		fields = ['user']
 
 class CartItemCreateUpdateSerializer(serializers.ModelSerializer): 
 	class Meta:
 		model = CartItem
-		fields = ['product' ,'quantity', 'cart']
+		fields = ['product' ,'quantity', 'order']
 
 	
