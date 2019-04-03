@@ -4,15 +4,18 @@ from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
 from decimal import *
 
-# class Category(models.Model):
-# 	name = models.CharField(max_length=50)
-# 	product = models.ForeignKey('Product', on_delete=models.CASCADE, related_name='categories')
+class Category(models.Model):
+	name = models.CharField(max_length=50)
+	# product = models.ForeignKey('Product', blank=True, null=True, on_delete=models.CASCADE, related_name='categories')
+
+	def __str__(self):
+		return self.name
 		
 class Product(models.Model):
 	name = models.CharField(max_length=50)
 	price = models.DecimalField(max_digits=6, decimal_places=2)
 	description = models.TextField()
-	# category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category_products')
+	category = models.ManyToManyField(Category, related_name='category_products')
 	added_by = models.ForeignKey(User, on_delete = models.CASCADE, related_name='products')
 
 class ProductImage(models.Model):
@@ -43,4 +46,6 @@ def get_subtotal(instance, *args, **kwargs):
 	instance.subtotal = Decimal(instance.product.price * instance.quantity)
 	instance.cart.total = instance.cart.total + instance.subtotal
 	instance.cart.save()
+
+
 

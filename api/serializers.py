@@ -1,6 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
-from .models import Product, ProductImage , Cart , CartItem, Profile
+from .models import Product, ProductImage , Cart , CartItem, Profile, Category
 from rest_framework_jwt.settings import api_settings
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -37,6 +37,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Product
 		fields = ['id','name', 'images', 'price']
+		
 
 class UserSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -62,12 +63,21 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
 		model = Product
 		fields = ['name', 'price', 'description']
 
+
+class CategorySerializer(serializers.ModelSerializer): 
+	
+	class Meta:
+		model = Category
+		fields = ['name']
+		
+
 class ProductDetailSerializer(serializers.ModelSerializer):
 	images = ProductImageSerializer(many=True)
-
+	categories = CategorySerializer(many=True)
 	class Meta:
 		model = Product
-		fields = ['name', 'images', 'price', 'description', 'added_by']
+		fields = ['name', 'images', 'price', 'description', 'added_by', 'categories']
+		
 
 class CartItemListSerializer(serializers.ModelSerializer): 
 	product = ProductDetailSerializer()
