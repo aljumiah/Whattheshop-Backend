@@ -25,7 +25,7 @@ class ProductImage(models.Model):
 class Cart(models.Model):
 	total = models.DecimalField(max_digits=6, default=0, decimal_places=2)
 	user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='orders')
-	paid = models.BooleanField(default=False) 
+	paid = models.BooleanField(default=False)
 	order_date = models.DateTimeField(null=True)
 
 class CartItem(models.Model):
