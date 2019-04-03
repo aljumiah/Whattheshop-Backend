@@ -16,7 +16,8 @@ from .serializers import (
 	ProductImageSerializer,
 	ProfileUpdateSerializer,
 	ProfileDetailSerializer,
-	OrderCreateSerializer
+	OrderCreateSerializer,
+	CategorySerializer,
 )
 from .models import Product, CartItem, Order, Profile, ProductImage
 from django.contrib.auth.models import User
@@ -81,10 +82,6 @@ class OrderCheckoutView(CreateAPIView):
 		order.order_date = datetime.datetime.now()
 		order.save()
 		serializer.save(user=self.request.user)
-		# order.order_date = auto_now
-		# serializer.save(order=order)
-		# order = Order(user=self.request.user)
-		# order.save()
 
 class OrderHistoryView(ListAPIView):
 	serializer_class = OrderSerializer
@@ -92,6 +89,13 @@ class OrderHistoryView(ListAPIView):
 	def get_queryset (self):
 		queryset = Order.objects.filter(user=self.request.user, paid=True)
 		return queryset
+
+class CartItemDeleteView(DestroyAPIView):
+	queryset = CartItem.objects.all()
+	serializer_class = CartItemListSerializer
+	lookup_field = 'id'
+	lookup_url_kwarg = 'item_id'
+	permission_classes = [IsAuthenticated, ]
 
 class ProductUpdateView(RetrieveUpdateAPIView):
 	queryset = Product.objects.all()

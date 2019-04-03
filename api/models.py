@@ -6,15 +6,15 @@ from decimal import *
 
 class Category(models.Model):
 	name = models.CharField(max_length=50)
-	
+
 	def __str__(self):
 		return self.name	
-
+  
 class Product(models.Model):
 	name = models.CharField(max_length=50)
 	price = models.DecimalField(max_digits=6, decimal_places=2)
 	description = models.TextField()
-	categories = models.ManyToManyField(Category, related_name='products')
+	categories = models.ManyToManyField(Category, related_name='category_products')
 	added_by = models.ForeignKey(User, on_delete = models.CASCADE, related_name='products')
 	
 	def __str__(self):
@@ -48,4 +48,6 @@ def get_subtotal(instance, *args, **kwargs):
 	instance.subtotal = Decimal(instance.product.price * instance.quantity)
 	instance.order.total = instance.order.total + instance.subtotal
 	instance.order.save()
+
+
 
