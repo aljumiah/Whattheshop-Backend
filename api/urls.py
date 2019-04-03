@@ -44,5 +44,4 @@ urlpatterns = [
 	
 	path('profile/<int:user_id>/update/', ProfileUpdate.as_view(), name='profile-update'),
 	path('profile/<int:user_id>/detail/', ProfileDetail.as_view(), name='profile-detail'),
-	path('profile/<int:user_id>/orderhistory/', OrderHistoryView.as_view(), name='profile-orderhistory'),
 ]

@@ -1,7 +1,6 @@
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from .models import Product, ProductImage , Order , CartItem, Profile, Category
-
 from rest_framework_jwt.settings import api_settings
 
 class UserCreateSerializer(serializers.ModelSerializer):
@@ -38,31 +37,6 @@ class ProductListSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Product
 		fields = ['id','name', 'images', 'price']
-		
-
-class UserSerializer(serializers.ModelSerializer):
-	class Meta:
-		model = User
-		fields = ['id', 'username', 'first_name', 'last_name', 'email']
-
-
-class ProfileUpdateSerializer(serializers.ModelSerializer):
-	user = UserSerializer()
-	class Meta:
-		model = Profile
-		fields = ['user', 'address', 'image']
-
-class ProfileDetailSerializer(serializers.ModelSerializer):
-	user = UserSerializer()
-	class Meta:
-		model = Profile
-		fields = '__all__'
-
-class ProductCreateUpdateSerializer(serializers.ModelSerializer):
-
-	class Meta:
-		model = Product
-		fields = ['name', 'price', 'description']
 
 
 class CategorySerializer(serializers.ModelSerializer): 
@@ -86,6 +60,39 @@ class CartItemListSerializer(serializers.ModelSerializer):
 		model = CartItem
 		fields = ['order', 'subtotal', 'product', 'subtotal', 'quantity']
 	
+class OrderHistorySerializer(serializers.ModelSerializer): 
+	cart_items = CartItemListSerializer(many=True)
+	class Meta:
+		model = Order
+		fields = ['id', 'cart_items', 'total', 'paid', 'order_date']
+
+class UserSerializer(serializers.ModelSerializer):
+	orders = serializers.SerializerMethodField()
+	class Meta:
+		model = User
+		fields = ['id', 'username', 'first_name', 'last_name', 'email', 'orders']
+
+	def get_orders(self, obj):
+		return OrderHistorySerializer(obj.orders.all(), many=True).data
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+	user = UserSerializer()
+	class Meta:
+		model = Profile
+		fields = ['user', 'address', 'image']
+
+class ProfileDetailSerializer(serializers.ModelSerializer):
+	user = UserSerializer()
+	class Meta:
+		model = Profile
+		fields = '__all__'
+
+class ProductCreateUpdateSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Product
+		fields = ['name', 'price', 'description']
+
 
 class OrderSerializer(serializers.ModelSerializer): 
 	cart_items = CartItemListSerializer(many=True)
