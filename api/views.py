@@ -16,6 +16,7 @@ from .serializers import (
 	ProductImageSerializer,
 	ProfileUpdateSerializer,
 	ProfileDetailSerializer,
+	CategorySerializer,
 )
 from .models import Product, CartItem, Cart, Profile, ProductImage
 from django.contrib.auth.models import User
