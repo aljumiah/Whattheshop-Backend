@@ -68,9 +68,12 @@ class CartItemUpdateView(RetrieveUpdateAPIView):
 
 #Cart 
 class CartListView(ListAPIView):
-	queryset = CartItem.objects.all()
 	serializer_class = CartItemListSerializer
 	permission_classes = [IsAuthenticated, ]
+	def get_queryset(self):
+		queryset = CartItem.objects.filter(order__user=self.request.user)
+		return queryset
+
 
 class OrderCheckoutView(CreateAPIView):
 	serializer_class = OrderCreateSerializer
