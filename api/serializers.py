@@ -52,7 +52,7 @@ class CartItemListSerializer(serializers.ModelSerializer):
 	product = ProductListSerializer()
 	class Meta:
 		model = CartItem
-		fields = ['order', 'subtotal', 'product', 'subtotal', 'quantity']
+		fields = ['id','order', 'subtotal', 'product', 'subtotal', 'quantity']
 	
 
 class OrderHistorySerializer(serializers.ModelSerializer): 
