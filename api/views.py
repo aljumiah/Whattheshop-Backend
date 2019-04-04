@@ -12,6 +12,8 @@ from .serializers import (
 	CartItemListSerializer,
 	CartItemCreateUpdateSerializer,
 	OrderSerializer,
+	UserSerializer,
+	UserUpdateSerializer,
 	ProductCreateUpdateSerializer,
 	ProductImageSerializer,
 	ProfileUpdateSerializer,
@@ -31,17 +33,28 @@ class UserCreateAPIView(CreateAPIView):
 
 
 class ProfileUpdate(APIView):
-	# queryset = Profile.objects.all()
-	# serializer_class = ProfileUpdateSerializer
-	# lookup_field='id'
-	# lookup_url_kwarg = 'user_id'
 	permission_classes = [IsAuthenticated, ]
 
-	# def put(self, request, user_id, *args, **kwargs):
-	# 	pass
+	def put(self, request, *args, **kwargs):
+		""" expected request = {user: {<USER_DATA>}, profile{<PROFILE_DATA>}}
+			check serializer for more detail on USER_DATA and PROFILE_DATA
+		"""
+		new_profile = request.data.get('profile')
+		new_user = request.data.get('user')
+		old_profile = Profile.objects.get(user=self.request.user)
+
+		profileSerializer = ProfileUpdateSerializer(instance= old_profile, data=new_profile, partial=True)
+		if profileSerializer.is_valid(raise_exception=True):
+			profileSerializer.save()
+
+		userSerializer = UserUpdateSerializer(instance=old_profile.user, data=new_user, partial=True)
+		if userSerializer.is_valid(raise_exception=True):
+			userSerializer.save()
+		
+		return Response({"success": "Profile for '{}' updated successfully".format(old_profile.user.username)})
+
 
 class ProfileDetail(APIView):
-	# serializer_class = ProfileDetailSerializer
 	permission_classes = [IsAuthenticated, ]
 
 	def get(self, request):
