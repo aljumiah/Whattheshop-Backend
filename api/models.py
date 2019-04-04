@@ -16,7 +16,7 @@ class Product(models.Model):
 	description = models.TextField()
 	categories = models.ManyToManyField(Category, related_name='category_products')
 	added_by = models.ForeignKey(User, on_delete = models.CASCADE, related_name='products')
-	
+	stock =models.IntegerField()
 	def __str__(self):
 		return self.name
 

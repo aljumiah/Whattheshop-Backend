@@ -19,7 +19,7 @@ from .serializers import (
 	OrderCreateSerializer,
 	CategorySerializer,
 )
-from .models import Product, CartItem, Order, Profile, ProductImage, Category
+from .models import Product, CartItem, Order, Profile, ProductImage
 from django.contrib.auth.models import User
 from rest_framework.permissions import (IsAuthenticated, IsAdminUser, )
 import datetime
@@ -65,10 +65,6 @@ class CartItemUpdateView(RetrieveUpdateAPIView):
 	lookup_field = 'id'
 	lookup_url_kwarg = 'item_id'
 	permission_classes = [IsAuthenticated, ]
-
-class CategoriesListView(ListAPIView):
-	queryset = Category.objects.all()
-	serializer_class = CategorySerializer
 
 #Cart 
 class CartListView(ListAPIView):
