@@ -41,6 +41,6 @@ urlpatterns = [
 
 	path('order/<int:order_id>/checkout/', OrderCheckoutView.as_view(), name='checkout'),
 	
-	path('profile/<int:user_id>/update/', ProfileUpdate.as_view(), name='profile-update'),
+	path('profile/update/', ProfileUpdate.as_view(), name='profile-update'),
 	path('profile/', ProfileDetail.as_view(), name='profile-detail'),
 ]

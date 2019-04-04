@@ -26,6 +26,7 @@ class UserCreateSerializer(serializers.ModelSerializer):
 		validated_data['token'] = jwt_encode_handler(payload)
 		return validated_data
 
+
 class ProductImageSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = ProductImage
@@ -38,6 +39,7 @@ class CategorySerializer(serializers.ModelSerializer):
 		model = Category
 		fields = ['name']
 
+
 class ProductListSerializer(serializers.ModelSerializer):
 	images = ProductImageSerializer(many=True)
 	categories = CategorySerializer(many=True)
@@ -45,17 +47,20 @@ class ProductListSerializer(serializers.ModelSerializer):
 		model = Product
 		fields = '__all__'
 
+
 class CartItemListSerializer(serializers.ModelSerializer): 
 	product = ProductListSerializer()
 	class Meta:
 		model = CartItem
 		fields = ['order', 'subtotal', 'product', 'subtotal', 'quantity']
 	
+
 class OrderHistorySerializer(serializers.ModelSerializer): 
 	cart_items = CartItemListSerializer(many=True)
 	class Meta:
 		model = Order
 		fields = ['id', 'cart_items', 'total', 'paid', 'order_date']
+
 
 class UserSerializer(serializers.ModelSerializer):
 	orders = serializers.SerializerMethodField()
@@ -66,28 +71,17 @@ class UserSerializer(serializers.ModelSerializer):
 	def get_orders(self, obj):
 		return OrderHistorySerializer(obj.orders.all(), many=True).data
 
-class ProfileUpdateSerializer(serializers.ModelSerializer):
-	user = UserSerializer(read_only=True)
-	username = serializers.SerializerMethodField()
-	first_name = serializers.SerializerMethodField()
-	last_name = serializers.SerializerMethodField()
-	email = serializers.SerializerMethodField()
+#changes
+class UserUpdateSerializer(serializers.ModelSerializer):
+	class Meta:
+		model = User
+		fields = ['username', 'first_name', 'last_name', 'email']
 
+
+class ProfileUpdateSerializer(serializers.ModelSerializer):
 	class Meta:
 		model = Profile
-		fields = ['user','username', 'first_name', 'last_name', 'email', 'address',]
-
-	def get_username(self, obj):
-		return obj.user.username
-
-	def get_first_name(self, obj):
-		return obj.user.first_name
-
-	def get_last_name(self, obj):
-		return obj.user.last_name
-
-	def get_email(self, obj):
-		return obj.user.email
+		fields = ['address']
 
 
 class ProfileDetailSerializer(serializers.ModelSerializer):
