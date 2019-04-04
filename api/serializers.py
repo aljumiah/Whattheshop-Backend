@@ -31,31 +31,22 @@ class ProductImageSerializer(serializers.ModelSerializer):
 		model = ProductImage
 		fields = ['image']
 
-class ProductListSerializer(serializers.ModelSerializer):
-	images = ProductImageSerializer(many=True)
-
-	class Meta:
-		model = Product
-		fields = ['id','name', 'images', 'price']
-
 
 class CategorySerializer(serializers.ModelSerializer): 
 	
 	class Meta:
 		model = Category
 		fields = ['name']
-		
 
-class ProductDetailSerializer(serializers.ModelSerializer):
+class ProductListSerializer(serializers.ModelSerializer):
 	images = ProductImageSerializer(many=True)
 	categories = CategorySerializer(many=True)
 	class Meta:
 		model = Product
-		fields = ['name', 'images', 'price', 'description', 'added_by', 'categories']
-		
+		fields = '__all__'
 
 class CartItemListSerializer(serializers.ModelSerializer): 
-	product = ProductDetailSerializer()
+	product = ProductListSerializer()
 	class Meta:
 		model = CartItem
 		fields = ['order', 'subtotal', 'product', 'subtotal', 'quantity']
@@ -76,10 +67,28 @@ class UserSerializer(serializers.ModelSerializer):
 		return OrderHistorySerializer(obj.orders.all(), many=True).data
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
-	user = UserSerializer()
+	user = UserSerializer(read_only=True)
+	username = serializers.SerializerMethodField()
+	first_name = serializers.SerializerMethodField()
+	last_name = serializers.SerializerMethodField()
+	email = serializers.SerializerMethodField()
+
 	class Meta:
 		model = Profile
-		fields = ['user', 'address', 'image']
+		fields = ['user','username', 'first_name', 'last_name', 'email', 'address',]
+
+	def get_username(self, obj):
+		return obj.user.username
+
+	def get_first_name(self, obj):
+		return obj.user.first_name
+
+	def get_last_name(self, obj):
+		return obj.user.last_name
+
+	def get_email(self, obj):
+		return obj.user.email
+
 
 class ProfileDetailSerializer(serializers.ModelSerializer):
 	user = UserSerializer()

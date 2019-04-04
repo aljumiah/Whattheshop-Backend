@@ -3,7 +3,6 @@ from .views import (
 UserCreateAPIView,
  ProductListView, 
  ProductImageAddView,
- ProductDetailView,
  ProductUpdateView, 
  ProductDeleteView, 
  ProductCreateView,
@@ -26,7 +25,6 @@ urlpatterns = [
 	path('register/', UserCreateAPIView.as_view(), name='register'),
 
 	path('products/list/', ProductListView.as_view(), name='products-list'),
-	path('products/<int:product_id>/detail/', ProductDetailView.as_view(), name='products-detail'),
 
 	path('products/create/', ProductCreateView.as_view(), name='products-update'),
 	path('products/<int:product_id>/update/', ProductUpdateView.as_view(), name='products-update'),
@@ -44,5 +42,5 @@ urlpatterns = [
 	path('order/<int:order_id>/checkout/', OrderCheckoutView.as_view(), name='checkout'),
 	
 	path('profile/<int:user_id>/update/', ProfileUpdate.as_view(), name='profile-update'),
-	path('profile/<int:user_id>/detail/', ProfileDetail.as_view(), name='profile-detail'),
+	path('profile/', ProfileDetail.as_view(), name='profile-detail'),
 ]
