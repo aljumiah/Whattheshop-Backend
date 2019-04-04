@@ -24,7 +24,7 @@ from django.contrib.auth.models import User
 from rest_framework.permissions import (IsAuthenticated, IsAdminUser, )
 import datetime
 from rest_framework.response import Response
-
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
 class UserCreateAPIView(CreateAPIView):
 	serializer_class = UserCreateSerializer
@@ -66,11 +66,35 @@ class CartItemCreateView(CreateAPIView):
 
 
 class CartItemUpdateView(RetrieveUpdateAPIView):
-	queryset = CartItem.objects.all()
-	serializer_class = CartItemCreateUpdateSerializer
-	lookup_field = 'id'
-	lookup_url_kwarg = 'item_id'
-	permission_classes = [IsAuthenticated, ]
+    # queryset = CartItem.objects.all()
+    serializer_class = CartItemCreateUpdateSerializer
+    # lookup_field = ‘id’
+    # lookup_url_kwarg = ‘item_id’
+    permission_classes = [IsAuthenticated, ]
+    
+    def put(self, request, item_id):
+        my_data = request.data
+        cartItem = CartItem.objects.get(id=item_id)
+        product = Product.objects.get(id=cartItem.product.id)
+        order = Order.objects.get(id=cartItem.order.id)
+        serializer = self.serializer_class(data=my_data)
+        if serializer.is_valid():
+            vaild_data = serializer.data
+            old_total= (cartItem.quantity * cartItem.product.price)
+            new_total = (vaild_data['quantity']* product.price)
+            order.total = order.total - old_total +new_total
+            cartItem.subtotal=new_total
+            order.save()
+            old_stock= product.stock + cartItem.quantity
+            print(old_stock)
+            new_stock = old_stock - vaild_data['quantity']
+            print(new_stock)
+            product.stock =new_stock
+            cartItem.quantity=vaild_data['quantity']
+            cartItem.save()
+            product.save()
+            return Response(CartItemCreateUpdateSerializer(cartItem).data,status=HTTP_200_OK)
+        return Response(serializer.errors,status=HTTP_400_BAD_REQUEST)
 
 
 class CategoriesListView(ListAPIView):

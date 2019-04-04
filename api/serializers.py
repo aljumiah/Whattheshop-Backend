@@ -124,6 +124,6 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 class CartItemCreateUpdateSerializer(serializers.ModelSerializer): 
 	class Meta:
 		model = CartItem
-		fields = ['product' ,'quantity', 'order']
+		fields = ['id','product' ,'quantity', 'order']
 
 	
