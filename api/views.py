@@ -5,10 +5,10 @@ from rest_framework.generics import (
 	RetrieveUpdateAPIView,
 	DestroyAPIView,
 )
+from rest_framework.views import APIView
 from .serializers import (
 	UserCreateSerializer, 
 	ProductListSerializer, 
-	ProductDetailSerializer,
 	CartItemListSerializer,
 	CartItemCreateUpdateSerializer,
 	OrderSerializer,
@@ -23,32 +23,36 @@ from .models import Product, CartItem, Order, Profile, ProductImage, Category
 from django.contrib.auth.models import User
 from rest_framework.permissions import (IsAuthenticated, IsAdminUser, )
 import datetime
+from rest_framework.response import Response
+
+
 class UserCreateAPIView(CreateAPIView):
 	serializer_class = UserCreateSerializer
 
-class ProfileUpdate(RetrieveUpdateAPIView):
-	queryset = Profile.objects.all()
-	serializer_class = ProfileUpdateSerializer
-	lookup_field='id'
-	lookup_url_kwarg = 'user_id'
+
+class ProfileUpdate(APIView):
+	# queryset = Profile.objects.all()
+	# serializer_class = ProfileUpdateSerializer
+	# lookup_field='id'
+	# lookup_url_kwarg = 'user_id'
 	permission_classes = [IsAuthenticated, ]
 
-class ProfileDetail(RetrieveAPIView):
-	queryset = Profile.objects.all()
+	# def put(self, request, user_id, *args, **kwargs):
+	# 	pass
+
+class ProfileDetail(ListAPIView):
 	serializer_class = ProfileDetailSerializer
-	lookup_field = 'id'
-	lookup_url_kwarg = 'user_id'
 	permission_classes = [IsAuthenticated, ]
+
+	def get_queryset(self):
+		queryset = Profile.objects.filter(user=self.request.user)
+		return queryset
+
 
 class ProductListView(ListAPIView):
 	queryset = Product.objects.all()
 	serializer_class = ProductListSerializer
 
-class ProductDetailView(RetrieveAPIView):
-	queryset = Product.objects.all()
-	serializer_class = ProductDetailSerializer
-	lookup_field = 'id'
-	lookup_url_kwarg = 'product_id'
 
 class CartItemCreateView(CreateAPIView):
 	serializer_class = CartItemCreateUpdateSerializer
@@ -59,12 +63,14 @@ class CartItemCreateView(CreateAPIView):
 		order = Order.objects.get(id=self.kwargs['order_id'])
 		serializer.save(product=product, order=order)
 
+
 class CartItemUpdateView(RetrieveUpdateAPIView):
 	queryset = CartItem.objects.all()
 	serializer_class = CartItemCreateUpdateSerializer
 	lookup_field = 'id'
 	lookup_url_kwarg = 'item_id'
 	permission_classes = [IsAuthenticated, ]
+
 
 class CategoriesListView(ListAPIView):
 	queryset = Category.objects.all()
