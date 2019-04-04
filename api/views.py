@@ -40,13 +40,14 @@ class ProfileUpdate(APIView):
 	# def put(self, request, user_id, *args, **kwargs):
 	# 	pass
 
-class ProfileDetail(ListAPIView):
-	serializer_class = ProfileDetailSerializer
+class ProfileDetail(APIView):
+	# serializer_class = ProfileDetailSerializer
 	permission_classes = [IsAuthenticated, ]
 
-	def get_queryset(self):
-		queryset = Profile.objects.filter(user=self.request.user)
-		return queryset
+	def get(self, request):
+		profile = Profile.objects.get(user=self.request.user)
+		serializer = ProfileDetailSerializer(profile)
+		return Response(serializer.data)
 
 
 class ProductListView(ListAPIView):
