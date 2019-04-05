@@ -57,10 +57,13 @@ class CartItemListSerializer(serializers.ModelSerializer):
 
 class OrderHistorySerializer(serializers.ModelSerializer): 
 	cart_items = CartItemListSerializer(many=True)
+	total = serializers.SerializerMethodField()
 	class Meta:
 		model = Order
 		fields = ['id', 'cart_items', 'total', 'paid', 'order_date']
 
+	def get_total(self, obj):
+		return obj.get_total()
 
 class UserSerializer(serializers.ModelSerializer):
 	orders = serializers.SerializerMethodField()
@@ -94,7 +97,7 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Product
-		fields = ['name', 'price', 'description']
+		fields = ['name', 'price', 'description', 'stock']
 
 
 class OrderSerializer(serializers.ModelSerializer): 
@@ -105,9 +108,14 @@ class OrderSerializer(serializers.ModelSerializer):
 			lookup_url_kwarg = 'order_id',
 		)
 	user = UserSerializer()
+	total = serializers.SerializerMethodField()
 	class Meta:
 		model = Order
 		fields = ['id', 'cart_items', 'total', 'paid', 'order_date', 'user','checkout']
+
+	def get_total(self, obj):
+		print(obj.get_total())
+		return obj.get_total()
 
 class OrderCreateSerializer(serializers.ModelSerializer): 
 	user = UserSerializer(read_only=True)
