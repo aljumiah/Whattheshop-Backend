@@ -27,6 +27,8 @@ from rest_framework.permissions import (IsAuthenticated, IsAdminUser, )
 import datetime
 from rest_framework.response import Response
 from rest_framework import status
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 class UserCreateAPIView(CreateAPIView):
@@ -125,7 +127,6 @@ class CategoriesListView(ListAPIView):
 
 #Cart 
 class OrderView(APIView):
-	# serializer_class = CartItemListSerializer
 	permission_classes = [IsAuthenticated, ]
 
 	def get(self, request):
@@ -142,6 +143,27 @@ class OrderCheckoutView(APIView):
 		serializer = OrderSerializer(instance = order, data={"paid": True, "order_date":datetime.datetime.now()}, partial=True)
 		if serializer.is_valid(raise_exception=True):
 			serializer.save()
+			"""		EMAIL SETUP 		"""
+			# subject = "Your Checkout Has Been Completed!"
+			# order_summary = ""
+			# for item in order.cart_items.all():
+			# 	order_summary += """
+			# 	Product Name: %s
+			# 	Product Price: %s
+			# 	Product Seller Name: %s
+			# 	Product Quantity: %s
+			# 	""" % (item.product.name, str(item.product.price), item.product.added_by.username, str(item.quantity))
+
+			# message = """This is an email confirming your order:
+			# here's a summary of it, 
+
+			# %s
+
+			# for a total of %s
+			# Thank you,
+
+			# """ % (order_summary, str(serializer.data.total))
+			# send_mail(subject, message, settings.EMAIL_HOST_USER, [order.user.email,], fail_silently=False,)
 			return Response({"success": "checked out cart for '{}' ".format(order.user.username)})
 
 class OrderHistoryView(ListAPIView):
