@@ -111,7 +111,6 @@ class CartItemUpdateView(RetrieveUpdateAPIView):
 		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)		
 
 
-
 class CartItemDeleteView(DestroyAPIView):
 	queryset = CartItem.objects.all()
 	serializer_class = CartItemListSerializer
@@ -119,29 +118,31 @@ class CartItemDeleteView(DestroyAPIView):
 	lookup_url_kwarg = 'item_id'
 	permission_classes = [IsAuthenticated, ]
 
+
 class CategoriesListView(ListAPIView):
 	queryset = Category.objects.all()
 	serializer_class = CategorySerializer
 
 #Cart 
-class CartListView(ListAPIView):
-	serializer_class = CartItemListSerializer
+class OrderView(APIView):
+	# serializer_class = CartItemListSerializer
 	permission_classes = [IsAuthenticated, ]
-	def get_queryset(self):
-		queryset = CartItem.objects.filter(order__user=self.request.user)
-		return queryset
 
+	def get(self, request):
+		order, resp = Order.objects.get_or_create(user=self.request.user, paid=False)
+		serializer = OrderSerializer(order)
+		return Response(serializer.data)
+	
 
-class OrderCheckoutView(CreateAPIView):
-	serializer_class = OrderCreateSerializer
+class OrderCheckoutView(APIView):
 	permission_classes = [IsAuthenticated, ]
 	
-	def perform_create(self,serializer):
-		order = Order.objects.get(id=self.kwargs['order_id'])
-		order.paid= True
-		order.order_date = datetime.datetime.now()
-		order.save()
-		serializer.save(user=self.request.user)
+	def put(self,request, order_id):
+		order = Order.objects.get(id=order_id)
+		serializer = OrderSerializer(instance = order, data={"paid": True, "order_date":datetime.datetime.now()}, partial=True)
+		if serializer.is_valid(raise_exception=True):
+			serializer.save()
+			return Response({"success": "checked out cart for '{}' ".format(order.user.username)})
 
 class OrderHistoryView(ListAPIView):
 	serializer_class = OrderSerializer
@@ -149,7 +150,6 @@ class OrderHistoryView(ListAPIView):
 	def get_queryset (self):
 		queryset = Order.objects.filter(user=self.request.user, paid=True)
 		return queryset
-
 
 
 class ProductUpdateView(RetrieveUpdateAPIView):

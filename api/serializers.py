@@ -72,7 +72,7 @@ class UserSerializer(serializers.ModelSerializer):
 		fields = ['id', 'username', 'first_name', 'last_name', 'email', 'orders']
 
 	def get_orders(self, obj):
-		return OrderHistorySerializer(obj.orders.all(), many=True).data
+		return OrderHistorySerializer(obj.orders.filter(paid=True), many=True).data
 
 #changes
 class UserUpdateSerializer(serializers.ModelSerializer):
@@ -102,16 +102,10 @@ class ProductCreateUpdateSerializer(serializers.ModelSerializer):
 
 class OrderSerializer(serializers.ModelSerializer): 
 	cart_items = CartItemListSerializer(many=True)
-	checkout = serializers.HyperlinkedIdentityField(
-			view_name = 'checkout',
-			lookup_field = 'id',
-			lookup_url_kwarg = 'order_id',
-		)
-	user = UserSerializer()
 	total = serializers.SerializerMethodField()
 	class Meta:
 		model = Order
-		fields = ['id', 'cart_items', 'total', 'paid', 'order_date', 'user','checkout']
+		fields = ['id', 'cart_items', 'total', 'paid', 'order_date', 'user']
 
 	def get_total(self, obj):
 		print(obj.get_total())
