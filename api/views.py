@@ -71,15 +71,29 @@ class ProductListView(ListAPIView):
 	serializer_class = ProductListSerializer
 
 
-class CartItemCreateView(CreateAPIView):
+class CartItemCreateView(APIView):
 	serializer_class = CartItemCreateUpdateSerializer
 	permission_classes = [IsAuthenticated, ]
 
-	def perform_create(self, serializer):	
-		product = Product.objects.get(id=self.kwargs['product_id'])
-		order = Order.objects.get(id=self.kwargs['order_id'])
-		serializer.save(product=product, order=order)
-
+	def post(self, request, order_id, product_id):	
+		product = Product.objects.get(id=product_id)
+		order = Order.objects.get(id=order_id)
+		serializer = CartItemCreateUpdateSerializer(data=request.data, partial=True)
+		cart_item, created = CartItem.objects.get_or_create(product=product, order=order)
+		if serializer.is_valid(raise_exception=True):
+			valid_data = serializer.data
+			if created:
+				cart_item.quantity = valid_data['quantity']
+				cart_item.product.stock -= cart_item.quantity
+				cart_item.save()
+				cart_item.product.save()
+			else:
+				cart_item.quantity += valid_data['quantity']
+				cart_item.product.stock -= cart_item.quantity
+				cart_item.save()
+				cart_item.product.save()
+			return Response({"quantity":valid_data['quantity']},status=status.HTTP_200_OK)
+		return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class CartItemUpdateView(RetrieveUpdateAPIView):
 	# queryset = CartItem.objects.all()
@@ -102,9 +116,7 @@ class CartItemUpdateView(RetrieveUpdateAPIView):
 			cartItem.subtotal=new_total
 			order.save()
 			old_stock= product.stock + cartItem.quantity
-			print(old_stock)
 			new_stock = old_stock - vaild_data['quantity']
-			print(new_stock)
 			product.stock =new_stock
 			cartItem.quantity=vaild_data['quantity']
 			cartItem.save()

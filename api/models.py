@@ -45,7 +45,7 @@ class Order(models.Model):
 
 class CartItem(models.Model):
 	product = models.ForeignKey(Product, null=True, on_delete=models.CASCADE, related_name='cart_items')
-	quantity = models.IntegerField()
+	quantity = models.IntegerField(default=0)
 	subtotal = models.DecimalField(default=0.00,max_digits=10, null=True, decimal_places=2)
 	order = models.ForeignKey(Order, null=True, on_delete=models.CASCADE, related_name='cart_items')
 	
@@ -59,17 +59,17 @@ class Profile(models.Model):
 
 @receiver(pre_save, sender = CartItem)
 def get_subtotal(instance, *args, **kwargs):
-    instance.subtotal = Decimal(instance.product.price)*Decimal(instance.quantity)
-    instance.order.total = Decimal(instance.order.total) + instance.subtotal
-    instance.product.stock = int(instance.product.stock) - int(instance.quantity)
-    instance.product.save()
-    instance.order.save()
+	instance.subtotal = Decimal(instance.product.price)*Decimal(instance.quantity)
+	# instance.order.total = Decimal(instance.order.total) + instance.subtotal
+	instance.product.stock = int(instance.product.stock) - int(instance.quantity)
+	instance.product.save()
+	# instance.order.save()
 
 
 @receiver(pre_delete, sender = CartItem)
 def change_subtotal(instance, *args, **kwargs):
-    instance.order.total = Decimal(instance.order.total) - instance.subtotal
-    instance.product.stock = int(instance.product.stock) + int(instance.quantity)
-    instance.product.save()
-    instance.order.save()
+	# instance.order.total = Decimal(instance.order.total) - instance.subtotal
+	instance.product.stock = int(instance.product.stock) + int(instance.quantity)
+	instance.product.save()
+	# instance.order.save()
 
