@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.db.models.signals import post_save, pre_save, pre_delete
+from django.db.models.signals import post_save, pre_save, pre_delete ,post_delete
 from django.dispatch import receiver
 from decimal import Decimal
 
@@ -44,7 +44,7 @@ class Order(models.Model):
 
 class CartItem(models.Model):
 	product = models.ForeignKey(Product, null=True, on_delete=models.CASCADE, related_name='cart_items')
-	quantity = models.IntegerField()
+	quantity = models.IntegerField(default=1,null=True)
 	subtotal = models.DecimalField(default=0.00,max_digits=10, null=True, decimal_places=2)
 	order = models.ForeignKey(Order, null=True, on_delete=models.CASCADE, related_name='cart_items')
 	
@@ -58,17 +58,32 @@ class Profile(models.Model):
 
 @receiver(pre_save, sender = CartItem)
 def get_subtotal(instance, *args, **kwargs):
-    instance.subtotal = Decimal(instance.product.price)*Decimal(instance.quantity)
-    instance.order.total = Decimal(instance.order.total) + instance.subtotal
-    instance.product.stock = int(instance.product.stock) - int(instance.quantity)
-    instance.product.save()
-    instance.order.save()
+	instance.subtotal = Decimal(instance.product.price)*Decimal(instance.quantity)
+	instance.order.total = Decimal(instance.order.total) + instance.subtotal
+	instance.product.stock = int(instance.product.stock) - int(instance.quantity)
+	instance.product.save()
+	instance.order.save()
 
 
 @receiver(pre_delete, sender = CartItem)
-def change_subtotal(instance, *args, **kwargs):
-    instance.order.total = Decimal(instance.order.total) - instance.subtotal
-    instance.product.stock = int(instance.product.stock) + int(instance.quantity)
-    instance.product.save()
-    instance.order.save()
+def change_total(instance, *args, **kwargs):
+	instance.order.total = Decimal(instance.order.total) - instance.subtotal
+	instance.product.stock = int(instance.product.stock) + int(instance.quantity)
+	instance.product.save()
+	instance.order.save()
 
+# @receiver(post_save, sender = CartItem)
+# def get_subtotal(instance, *args, **kwargs):
+# 	instance.subtotal = Decimal(instance.product.price)*Decimal(instance.quantity)
+# 	instance.order.total = Decimal(instance.order.total) + instance.subtotal
+# 	instance.product.stock = int(instance.product.stock) - int(instance.quantity)
+# 	instance.product.save()
+# 	instance.order.save()
+
+
+# @receiver(post_delete, sender = CartItem)
+# def change_total(instance, *args, **kwargs):
+# 	instance.order.total = Decimal(instance.order.total) - instance.subtotal
+# 	instance.product.stock = int(instance.product.stock) + int(instance.quantity)
+# 	instance.product.save()
+# 	instance.order.save()

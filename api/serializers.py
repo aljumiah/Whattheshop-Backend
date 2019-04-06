@@ -4,28 +4,56 @@ from .models import Product, ProductImage , Order , CartItem, Profile, Category
 from rest_framework_jwt.settings import api_settings
 
 class UserCreateSerializer(serializers.ModelSerializer):
-	password = serializers.CharField(write_only=True)
-	token = serializers.CharField(read_only=True)
-	class Meta:
-		model = User
-		fields = ['username', 'password', 'token']
+    password = serializers.CharField(write_only=True)
+    token = serializers.CharField(allow_blank=True, read_only=True)
 
-	def create(self, validated_data):
-		username = validated_data['username']
-		password = validated_data['password']
-		new_user = User(username=username)
-		new_user.set_password(password)
-		new_user.save()
-		profile = Profile(user=new_user)
-		profile.save()
-		order = Order(user=new_user)
-		order.save()
-		jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-		jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-		payload = jwt_payload_handler(new_user)
-		validated_data['token'] = jwt_encode_handler(payload)
-		return validated_data
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'token']
 
+    def create(self, validated_data):
+        username = validated_data['username']
+        password = validated_data['password']
+        new_user = User(username=username)
+        new_user.set_password(password)
+        new_user.save()
+
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+        payload = jwt_payload_handler(new_user)
+        token = jwt_encode_handler(payload)
+
+        validated_data["token"] = token
+        return validated_data
+
+
+class UserLoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField(write_only=True)
+    token = serializers.CharField(allow_blank=True, read_only=True)
+
+    def validate(self, data):
+        my_username = data.get('username')
+        my_password = data.get('password')
+
+        try:
+            user_obj = User.objects.get(username=my_username)
+        except:
+            raise serializers.ValidationError("This username does not exist")
+
+        if not user_obj.check_password(my_password):
+            raise serializers.ValidationError(
+                "Incorrect username/password combination! Noob..")
+
+        jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+        jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+
+        payload = jwt_payload_handler(user_obj)
+        token = jwt_encode_handler(payload)
+
+        data["token"] = token
+        return data
 
 class ProductImageSerializer(serializers.ModelSerializer):
 	class Meta:
@@ -50,9 +78,10 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 class CartItemListSerializer(serializers.ModelSerializer): 
 	product = ProductListSerializer()
+	#order=OrderSerializer()
 	class Meta:
 		model = CartItem
-		fields = ['id','order', 'subtotal', 'product', 'subtotal', 'quantity']
+		fields = ['id','order', 'product', 'subtotal', 'quantity']
 	
 
 class OrderHistorySerializer(serializers.ModelSerializer): 
@@ -126,6 +155,6 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 class CartItemCreateUpdateSerializer(serializers.ModelSerializer): 
 	class Meta:
 		model = CartItem
-		fields = ['product' ,'quantity', 'order']
+		fields = ['id','product' ,'quantity', 'order']
 
 	
