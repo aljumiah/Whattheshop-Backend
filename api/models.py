@@ -37,8 +37,9 @@ class Order(models.Model):
 
 	def get_total(self):
 		total = 0
-		for item in self.cart_items.all():
-			total += item.subtotal
+		if self.cart_items.all():
+			for item in self.cart_items.all():
+				total += item.subtotal
 		return total
 
 
