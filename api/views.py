@@ -110,11 +110,11 @@ class CartItemUpdateView(RetrieveUpdateAPIView):
 		serializer = self.serializer_class(data=my_data)
 		if serializer.is_valid():
 			vaild_data = serializer.data
-			old_total= (cartItem.quantity * cartItem.product.price)
-			new_total = (vaild_data['quantity']* product.price)
-			order.total = order.total - old_total +new_total
-			cartItem.subtotal=new_total
-			order.save()
+			# old_total= (cartItem.quantity * cartItem.product.price)
+			# new_total = (vaild_data['quantity']* product.price)
+			# order.total = order.total - old_total +new_total
+			# cartItem.subtotal=new_total
+			# order.save()
 			old_stock= product.stock + cartItem.quantity
 			new_stock = old_stock - vaild_data['quantity']
 			product.stock =new_stock

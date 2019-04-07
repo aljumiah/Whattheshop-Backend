@@ -61,7 +61,7 @@ class Profile(models.Model):
 def get_subtotal(instance, *args, **kwargs):
 	instance.subtotal = Decimal(instance.product.price)*Decimal(instance.quantity)
 	# instance.order.total = Decimal(instance.order.total) + instance.subtotal
-	instance.product.stock = int(instance.product.stock) - int(instance.quantity)
+	# instance.product.stock = int(instance.product.stock) - int(instance.quantity)
 	instance.product.save()
 	# instance.order.save()
 
