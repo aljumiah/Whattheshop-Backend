@@ -89,7 +89,7 @@ class CartItemCreateView(APIView):
 				cart_item.product.save()
 			else:
 				cart_item.quantity += valid_data['quantity']
-				cart_item.product.stock -= cart_item.quantity
+				cart_item.product.stock -= valid_data['quantity']
 				cart_item.save()
 				cart_item.product.save()
 			return Response({"quantity":valid_data['quantity']},status=status.HTTP_200_OK)
