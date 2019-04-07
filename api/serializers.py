@@ -43,6 +43,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class ProductListSerializer(serializers.ModelSerializer):
 	images = ProductImageSerializer(many=True)
 	categories = CategorySerializer(many=True)
+	# added_by= UserSerializer()
 	class Meta:
 		model = Product
 		fields = '__all__'
@@ -126,6 +127,6 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 class CartItemCreateUpdateSerializer(serializers.ModelSerializer): 
 	class Meta:
 		model = CartItem
-		fields = ['product' ,'quantity', 'order']
+		fields = ['id','product' ,'quantity', 'order']
 
 	
