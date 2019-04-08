@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Product, ProductImage , Order , CartItem, Profile, Category
 from rest_framework_jwt.settings import api_settings
 
+
 class UserCreateSerializer(serializers.ModelSerializer):
 	password = serializers.CharField(write_only=True)
 	token = serializers.CharField(read_only=True)
@@ -120,6 +121,6 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 class CartItemCreateUpdateSerializer(serializers.ModelSerializer): 
 	class Meta:
 		model = CartItem
-		fields = ['id','product' ,'quantity', 'order']
+		fields = ['id', 'product', 'quantity', 'order']
 
 	

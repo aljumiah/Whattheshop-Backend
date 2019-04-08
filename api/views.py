@@ -137,7 +137,7 @@ class CategoriesListView(ListAPIView):
 	queryset = Category.objects.all()
 	serializer_class = CategorySerializer
 
-#Cart 
+
 class OrderView(APIView):
 	permission_classes = [IsAuthenticated, ]
 
@@ -156,27 +156,30 @@ class OrderCheckoutView(APIView):
 		if serializer.is_valid(raise_exception=True):
 			serializer.save()
 			"""		EMAIL SETUP 		"""
-			# subject = "Your Checkout Has Been Completed!"
-			# order_summary = ""
-			# for item in order.cart_items.all():
-			# 	order_summary += """
-			# 	Product Name: %s
-			# 	Product Price: %s
-			# 	Product Seller Name: %s
-			# 	Product Quantity: %s
-			# 	""" % (item.product.name, str(item.product.price), item.product.added_by.username, str(item.quantity))
+			subject = "Your Checkout Has Been Completed!"
+			order_summary = ""
+			for item in order.cart_items.all():
+				order_summary += """
+				Product Name: %s
+				Product Price: %s
+				Product Seller Name: %s
+				Product Quantity: %s
+				""" % (item.product.name, str(item.product.price), item.product.added_by.username, str(item.quantity))
 
-			# message = """This is an email confirming your order:
-			# here's a summary of it, 
+			message = """This is an email confirming your order:
+			here's a summary of it, 
 
-			# %s
+			%s
 
-			# for a total of %s
-			# Thank you,
+			for a total of %s
+			Thank you,
 
-			# """ % (order_summary, str(serializer.data.total))
-			# send_mail(subject, message, settings.EMAIL_HOST_USER, [order.user.email,], fail_silently=False,)
-			return Response({"success": "checked out cart for '{}' ".format(order.user.username)})
+			""" % (order_summary, str(serializer.data['total']))
+			if self.request.user.email:
+				send_mail(subject, message, settings.EMAIL_HOST_USER, [self.request.user.email,], fail_silently=False,)
+
+			return Response(serializer.data)
+
 
 class OrderHistoryView(ListAPIView):
 	serializer_class = OrderSerializer
@@ -193,17 +196,20 @@ class ProductUpdateView(RetrieveUpdateAPIView):
 	lookup_url_kwarg = 'product_id'	
 	permission_classes = [IsAuthenticated, ]
 
+
 class ProductCreateView(CreateAPIView):
 	serializer_class = ProductCreateUpdateSerializer
 	permission_classes = [IsAuthenticated, ]
 	def perform_create(self, serializer):
 		serializer.save(added_by=self.request.user)
 
+
 class ProductDeleteView(DestroyAPIView):
 	queryset = Product.objects.all()
 	lookup_field = 'id'
 	lookup_url_kwarg = 'product_id'	
 	permission_classes = [IsAdminUser, ]
+
 
 class ProductImageAddView(CreateAPIView):
 	serializer_class = ProductImageSerializer
@@ -213,6 +219,7 @@ class ProductImageAddView(CreateAPIView):
 		product = Product.objects.get(id=self.kwargs['product_id'])
 		serializer.save(product=product)
 
+
 class ProductImageUpdateView(RetrieveUpdateAPIView):
 	serializer_class = ProductImageSerializer
 	permission_classes = [IsAuthenticated, ]
@@ -221,6 +228,7 @@ class ProductImageUpdateView(RetrieveUpdateAPIView):
 	def get_queryset(self):
 		images = ProductImage.objects.filter(product__id=self.kwargs['product_id'])
 		return images
+
 	
 class ProductImageDeleteView(DestroyAPIView):
 	permission_classes = [IsAuthenticated, ]
@@ -229,3 +237,5 @@ class ProductImageDeleteView(DestroyAPIView):
 	def get_queryset(self):
 		images = ProductImage.objects.filter(product__id=self.kwargs['product_id'])
 		return images
+
+
