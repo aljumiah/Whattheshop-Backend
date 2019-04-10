@@ -47,6 +47,4 @@ urlpatterns = [
 	path('order/items/', OrderView.as_view(), name='cart'),
 	
 	path('order/<int:order_id>/checkout/', OrderCheckoutView.as_view(), name='checkout'),
-	
-	
 ]
