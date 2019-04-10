@@ -29,7 +29,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.core.mail import send_mail
 from django.conf import settings
-
+import requests
+from django.template.loader import get_template, render_to_string
+from django.template import Context
 
 class UserCreateAPIView(CreateAPIView):
 	serializer_class = UserCreateSerializer
@@ -145,38 +147,32 @@ class OrderView(APIView):
 		order, resp = Order.objects.get_or_create(user=self.request.user, paid=False)
 		serializer = OrderSerializer(order)
 		return Response(serializer.data)
-	
+
 
 class OrderCheckoutView(APIView):
 	permission_classes = [IsAuthenticated, ]
 	
 	def put(self,request, order_id):
 		order = Order.objects.get(id=order_id)
+		# url = "https://api.tap.company/v2/charges"
+		# payload = "{\"amount\":%s,\"currency\":\"SAR\",\"threeDSecure\":true,\"receipt\":{\"email\":true,\"sms\":false},\"customer\":{\"first_name\":\"test\",\"middle_name\":\"test\",\"last_name\":\"test\",\"email\":\"test@test.com\",\"phone\":{\"country_code\":\"966\",\"number\":\"50000000\"}},\"source\":{\"id\":\"src_kw.knet\"},\"post\":{\"url\":\"http://your_website.com/post_url\"},\"redirect\":{\"url\":\"http://your_website.com/redirect_url\"}}"
+		# headers = {
+		# 	'authorization': "Bearer sk_test_XKokBfNWv6FIYuTMg5sLPjhJ",
+		# 	'content-type': "application/json"
+		# 	}
+
+		# response = requests.request("POST", url, data=payload, headers=headers)
 		serializer = OrderSerializer(instance = order, data={"paid": True, "order_date":datetime.datetime.now()}, partial=True)
 		if serializer.is_valid(raise_exception=True):
 			serializer.save()
 			"""		EMAIL SETUP 		"""
 			subject = "Your Checkout Has Been Completed!"
 			order_summary = ""
-			for item in order.cart_items.all():
-				order_summary += """
-				Product Name: %s
-				Product Price: %s
-				Product Seller Name: %s
-				Product Quantity: %s
-				""" % (item.product.name, str(item.product.price), item.product.added_by.username, str(item.quantity))
+			plain_msg = """total : %s """ % (str(serializer.data['total']))
+			html_msg = get_template('checkout_email.html').render({ 'order': order, 'total': serializer.data['total'] })
 
-			message = """This is an email confirming your order:
-			here's a summary of it, 
-
-			%s
-
-			for a total of %s
-			Thank you,
-
-			""" % (order_summary, str(serializer.data['total']))
 			if self.request.user.email:
-				send_mail(subject, message, settings.EMAIL_HOST_USER, [self.request.user.email,], fail_silently=False,)
+				send_mail(subject, plain_msg, settings.EMAIL_HOST_USER, [self.request.user.email,], fail_silently=False, html_message=html_msg)
 
 			return Response(serializer.data)
 

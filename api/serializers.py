@@ -41,7 +41,13 @@ class CategorySerializer(serializers.ModelSerializer):
 		fields = ['name']
 
 
+class AddedBySerializer(serializers.ModelSerializer):
+	class Meta:
+		model = User
+		fields = ['username', 'email']
+
 class ProductListSerializer(serializers.ModelSerializer):
+	added_by = AddedBySerializer()
 	images = ProductImageSerializer(many=True)
 	categories = CategorySerializer(many=True)
 	class Meta:
