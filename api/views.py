@@ -159,7 +159,7 @@ class OrderPaymentView(APIView):
 		if(request.data['requestFrom'] == "js"):
 			payload = "{\"amount\":" + total + ",\"currency\":\"SAR\",\"threeDSecure\":true,\"customer\":{\"first_name\":\""+order.user.first_name+"\",\"last_name\":\""+order.user.last_name+"\",\"email\":\""+order.user.email+"\",\"phone\":{\"country_code\":\"966\",\"number\":\""+phonenumber+"\"}},\"source\":{\"id\":\"src_all\"},\"redirect\":{\"url\":\"http://localhost:3000/thank-you/\"}}"
 		elif(request.data['requestFrom'] == "native"):
-			payload = "{\"amount\":" + total + ",\"currency\":\"SAR\",\"threeDSecure\":true,\"customer\":{\"first_name\":\""+order.user.first_name+"\",\"last_name\":\""+order.user.last_name+"\",\"email\":\""+order.user.email+"\",\"phone\":{\"country_code\":\"966\",\"number\":\""+phonenumber+"\"}},\"source\":{\"id\":\"src_all\"},\"redirect\":{\"url\":\"www.google.com/\"}}"
+			payload = "{\"amount\":" + total + ",\"currency\":\"SAR\",\"threeDSecure\":true,\"customer\":{\"first_name\":\""+order.user.first_name+"\",\"last_name\":\""+order.user.last_name+"\",\"email\":\""+order.user.email+"\",\"phone\":{\"country_code\":\"966\",\"number\":\""+phonenumber+"\"}},\"source\":{\"id\":\"src_all\"},\"redirect\":{\"url\":\"exp://172.20.10.3:19000/\"}}"
 		headers = {
 			'authorization': "Bearer sk_test_XKokBfNWv6FIYuTMg5sLPjhJ",
 			'content-type': "application/json"
@@ -167,6 +167,7 @@ class OrderPaymentView(APIView):
 		print("its here")
 
 		response = requests.request("POST", url, data=payload, headers=headers)
+		print(response.json())
 		return Response({"response":response, "order": OrderSerializer(order).data})
 
 class OrderCheckoutView(APIView):
