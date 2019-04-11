@@ -17,6 +17,7 @@ UserCreateAPIView,
  CartItemDeleteView,
  OrderView,
  CategoriesListView,
+ OrderPaymentView,
   )
 from rest_framework_jwt.views import obtain_jwt_token
 
@@ -46,5 +47,7 @@ urlpatterns = [
 
 	path('order/items/', OrderView.as_view(), name='cart'),
 	
-	path('order/<int:order_id>/checkout/', OrderCheckoutView.as_view(), name='checkout'),
+	path('order/<int:order_id>/checkout/', OrderPaymentView.as_view(), name='checkout'),
+	path('order/<int:order_id>/checkout/final/', OrderCheckoutView.as_view(), name='final-checkout'),
+
 ]
