@@ -149,19 +149,32 @@ class OrderView(APIView):
 		return Response(serializer.data)
 
 
+class OrderPaymentView(APIView):
+	def post(self, request, order_id):
+		order = Order.objects.get(id=order_id)
+		print(request.data)
+		phonenumber = request.data['phoneNumber']
+		url = "https://api.tap.company/v2/charges"
+		total = str(order.get_total())
+		if(request.data['requestFrom'] == "js"):
+			payload = "{\"amount\":" + total + ",\"currency\":\"SAR\",\"threeDSecure\":true,\"customer\":{\"first_name\":\""+order.user.first_name+"\",\"last_name\":\""+order.user.last_name+"\",\"email\":\""+order.user.email+"\",\"phone\":{\"country_code\":\"966\",\"number\":\""+phonenumber+"\"}},\"source\":{\"id\":\"src_all\"},\"redirect\":{\"url\":\"http://localhost:3000/thank-you/\"}}"
+		elif(request.data['requestFrom'] == "native"):
+			payload = "{\"amount\":" + total + ",\"currency\":\"SAR\",\"threeDSecure\":true,\"customer\":{\"first_name\":\""+order.user.first_name+"\",\"last_name\":\""+order.user.last_name+"\",\"email\":\""+order.user.email+"\",\"phone\":{\"country_code\":\"966\",\"number\":\""+phonenumber+"\"}},\"source\":{\"id\":\"src_all\"},\"redirect\":{\"url\":\"www.google.com/\"}}"
+		headers = {
+			'authorization': "Bearer sk_test_XKokBfNWv6FIYuTMg5sLPjhJ",
+			'content-type': "application/json"
+			}
+		print("its here")
+
+		response = requests.request("POST", url, data=payload, headers=headers)
+		return Response({"response":response, "order": OrderSerializer(order).data})
+
 class OrderCheckoutView(APIView):
 	permission_classes = [IsAuthenticated, ]
 	
-	def put(self,request, order_id):
+	def post(self,request, order_id):
 		order = Order.objects.get(id=order_id)
-		# url = "https://api.tap.company/v2/charges"
-		# payload = "{\"amount\":%s,\"currency\":\"SAR\",\"threeDSecure\":true,\"receipt\":{\"email\":true,\"sms\":false},\"customer\":{\"first_name\":\"test\",\"middle_name\":\"test\",\"last_name\":\"test\",\"email\":\"test@test.com\",\"phone\":{\"country_code\":\"966\",\"number\":\"50000000\"}},\"source\":{\"id\":\"src_kw.knet\"},\"post\":{\"url\":\"http://your_website.com/post_url\"},\"redirect\":{\"url\":\"http://your_website.com/redirect_url\"}}"
-		# headers = {
-		# 	'authorization': "Bearer sk_test_XKokBfNWv6FIYuTMg5sLPjhJ",
-		# 	'content-type': "application/json"
-		# 	}
-
-		# response = requests.request("POST", url, data=payload, headers=headers)
+		
 		serializer = OrderSerializer(instance = order, data={"paid": True, "order_date":datetime.datetime.now()}, partial=True)
 		if serializer.is_valid(raise_exception=True):
 			serializer.save()
